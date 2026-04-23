@@ -1,2132 +1,1686 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>
-            Mathematics in Artificial Intelligence — The Geometric Core
-        </title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-            rel="stylesheet"
-        />
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mathematics in Artificial Intelligence — The Geometric Core</title>
 
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
-        />
-        <script
-            defer
-            src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
-        ></script>
-        <script
-            defer
-            src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-            onload="
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="
                 renderMathInElement(document.body, {
                     delimiters: [
                         { left: '$$', right: '$$', display: true },
                         { left: '$', right: '$', display: false },
                     ],
                 })
-            "
-        ></script>
+            "></script>
 
-        <style>
-            :root {
-                --bg: #fbfaf6; /* warm paper */
-                --bg-2: #f3f1e9;
-                --ink: #0e1a35; /* deep navy */
-                --ink-soft: #3a4566;
-                --muted: #6b7390;
-                --rule: #d8d3c2;
-                --accent: #b6863b; /* warm amber */
-                --accent-2: #2453a6; /* academic blue */
-                --paper-shadow:
-                    0 30px 60px -30px rgba(14, 26, 53, 0.18),
-                    0 8px 20px -8px rgba(14, 26, 53, 0.08);
-            }
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
-            html,
-            body {
-                height: 100%;
-                background: #1d1c17;
-                font-family: "Inter", system-ui, sans-serif;
-                color: var(--ink);
-                overflow: hidden;
-            }
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
+    <style>
+        :root {
+            --bg: #fbfaf6;
+            /* warm paper */
+            --bg-2: #f3f1e9;
+            --ink: #0e1a35;
+            /* deep navy */
+            --ink-soft: #3a4566;
+            --muted: #6b7390;
+            --rule: #d8d3c2;
+            --accent: #b6863b;
+            /* warm amber */
+            --accent-2: #2453a6;
+            /* academic blue */
+            --paper-shadow: 0 30px 60px -30px rgba(14, 26, 53, 0.18),
+                0 8px 20px -8px rgba(14, 26, 53, 0.08);
+        }
 
-            /* ===================== STAGE / SLIDES ===================== */
-            .stage {
-                position: relative;
-                width: min(96vw, 1600px);
-                aspect-ratio: 16/9;
-                background: var(--bg);
-                border-radius: 14px;
-                box-shadow: var(--paper-shadow);
-                overflow: hidden;
-            }
-            .slide {
-                position: absolute;
-                inset: 0;
-                padding: 64px 80px 56px;
-                display: flex;
-                flex-direction: column;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: #1d1c17;
+            font-family: "Inter", system-ui, sans-serif;
+            color: var(--ink);
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===================== STAGE / SLIDES ===================== */
+        .stage {
+            position: relative;
+            width: min(96vw, 1600px);
+            aspect-ratio: 16/9;
+            background: var(--bg);
+            border-radius: 14px;
+            box-shadow: var(--paper-shadow);
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 64px 80px 56px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(40px);
+            transition:
+                opacity 0.55s ease,
+                transform 0.55s ease,
+                visibility 0s linear 0.55s;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            transition:
+                opacity 0.55s ease,
+                transform 0.55s ease,
+                visibility 0s;
+        }
+
+        .slide.prev {
+            transform: translateX(-40px);
+        }
+
+        /* ===================== HEADER CHROME ===================== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: "Inter";
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--rule);
+            margin-bottom: 36px;
+        }
+
+        .topbar .lhs {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .seal {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, var(--accent), #6e4f1f);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06) inset;
+        }
+
+        .topbar .rhs {
+            font-feature-settings: "tnum" on;
+        }
+
+        /* ===================== TITLE TYPOGRAPHY ===================== */
+        .eyebrow {
+            font-family: "Inter";
+            font-weight: 500;
+            font-size: 13px;
+            letter-spacing: 0.36em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 18px;
+        }
+
+        h1.display {
+            font-family: "Cormorant Garamond", serif;
+            font-weight: 600;
+            font-size: clamp(42px, 5.6vw, 88px);
+            line-height: 1.02;
+            letter-spacing: -0.01em;
+            color: var(--ink);
+        }
+
+        h1.display em {
+            font-style: italic;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        h2.title {
+            font-family: "Cormorant Garamond", serif;
+            font-weight: 600;
+            font-size: clamp(34px, 3.6vw, 56px);
+            line-height: 1.06;
+            letter-spacing: -0.005em;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        h2.title em {
+            font-style: italic;
+            color: var(--accent-2);
+            font-weight: 500;
+        }
+
+        .subtitle {
+            font-family: "Cormorant Garamond", serif;
+            font-style: italic;
+            font-size: clamp(18px, 1.6vw, 26px);
+            color: var(--ink-soft);
+            margin-bottom: 28px;
+        }
+
+        p,
+        li {
+            font-family: "Inter";
+            font-weight: 400;
+            font-size: clamp(15px, 1.18vw, 19px);
+            line-height: 1.55;
+            color: var(--ink-soft);
+        }
+
+        .lead {
+            font-size: clamp(17px, 1.32vw, 22px);
+            color: var(--ink);
+            font-weight: 400;
+        }
+
+        .small {
+            font-size: 13px;
+            color: var(--muted);
+            letter-spacing: 0.02em;
+        }
+
+        .mono {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
+
+        /* ===================== LAYOUTS ===================== */
+        .body {
+            display: grid;
+            gap: 48px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .body.two {
+            grid-template-columns: 1.05fr 0.95fr;
+        }
+
+        .body.text {
+            grid-template-columns: 1fr;
+            max-width: 1100px;
+        }
+
+        .body.three {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        /* ===================== LISTS / CALLOUTS ===================== */
+        ul.clean {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        ul.clean li {
+            position: relative;
+            padding-left: 26px;
+        }
+
+        ul.clean li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.62em;
+            width: 14px;
+            height: 1.5px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+
+        ul.clean li strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: var(--bg-2);
+            padding: 18px 22px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 22px;
+        }
+
+        .callout p {
+            font-style: italic;
+            color: var(--ink);
+            font-family: "Cormorant Garamond";
+            font-size: 22px;
+            line-height: 1.4;
+        }
+
+        .pillrow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .pill {
+            padding: 7px 14px;
+            border: 1px solid var(--rule);
+            border-radius: 999px;
+            font-size: 13px;
+            color: var(--ink-soft);
+            background: #fff;
+        }
+
+        .pill.accent {
+            background: #fdf6e6;
+            border-color: #e5cf95;
+            color: #6e4f1f;
+            font-weight: 500;
+        }
+
+        /* ===================== FIGURE ===================== */
+        .figure {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .figure .frame {
+            background: #fff;
+            border: 1px solid var(--rule);
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 8px 24px -16px rgba(14, 26, 53, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .figure .frame img {
+            max-width: 100%;
+            max-height: 46vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .figure .frame svg {
+            max-width: 100%;
+            max-height: 46vh;
+            display: block;
+        }
+
+        .caption {
+            font-family: "Cormorant Garamond";
+            font-style: italic;
+            font-size: 15px;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* ===================== EQUATION CARDS ===================== */
+        .eqcard {
+            background: #fff;
+            border: 1px solid var(--rule);
+            border-radius: 10px;
+            padding: 22px 26px;
+            margin-top: 18px;
+            box-shadow: 0 6px 20px -14px rgba(14, 26, 53, 0.18);
+        }
+
+        .eqcard .eqlabel {
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .eqcard .katex-display {
+            margin: 0.4em 0;
+        }
+
+        .eqcard.compact {
+            padding: 14px 20px;
+        }
+
+        /* ===================== COVER ===================== */
+        .cover {
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: stretch;
+        }
+
+        .cover .left {
+            padding: 90px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .cover .right {
+            background: linear-gradient(180deg, #f0ecdf 0%, #e7e1ce 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cover .right svg {
+            width: 120%;
+            height: 120%;
+        }
+
+        .cover .meta {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            bottom: 60px;
+        }
+
+        .cover .meta .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 40px;
+        }
+
+        .cover .meta .label {
+            font-size: 10px;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .cover .meta .name {
+            font-family: "Cormorant Garamond";
+            font-weight: 500;
+            font-size: 17px;
+            color: var(--ink);
+            line-height: 1.4;
+        }
+
+        .cover .ornament {
+            width: 62px;
+            height: 1.5px;
+            background: var(--accent);
+            margin-bottom: 24px;
+        }
+
+        /* ===================== CLOSING ===================== */
+        .closing {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px;
+        }
+
+        .closing .display {
+            max-width: 18ch;
+        }
+
+        .closing .ornament {
+            width: 80px;
+            height: 1.5px;
+            background: var(--accent);
+            margin: 28px auto;
+        }
+
+        .closing .authors {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px 60px;
+            margin-top: 36px;
+        }
+
+        .closing .authors div {
+            font-family: "Cormorant Garamond";
+            font-size: 18px;
+            color: var(--ink-soft);
+        }
+
+        /* ===================== STAGGER ANIMATIONS ===================== */
+        .slide.active .reveal {
+            animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+
+        .slide.active .reveal:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .slide.active .reveal:nth-child(2) {
+            animation-delay: 0.18s;
+        }
+
+        .slide.active .reveal:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .slide.active .reveal:nth-child(4) {
+            animation-delay: 0.42s;
+        }
+
+        .slide.active .reveal:nth-child(5) {
+            animation-delay: 0.54s;
+        }
+
+        .slide.active .reveal:nth-child(6) {
+            animation-delay: 0.66s;
+        }
+
+        @keyframes rise {
+            from {
                 opacity: 0;
-                visibility: hidden;
-                transform: translateX(40px);
-                transition:
-                    opacity 0.55s ease,
-                    transform 0.55s ease,
-                    visibility 0s linear 0.55s;
+                transform: translateY(18px);
             }
-            .slide.active {
+
+            to {
                 opacity: 1;
-                visibility: visible;
-                transform: translateX(0);
-                transition:
-                    opacity 0.55s ease,
-                    transform 0.55s ease,
-                    visibility 0s;
+                transform: translateY(0);
             }
-            .slide.prev {
-                transform: translateX(-40px);
+        }
+
+        .slide.active .figure .frame {
+            animation: pop 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.25s;
+        }
+
+        @keyframes pop {
+            from {
+                opacity: 0;
+                transform: scale(0.97);
             }
 
-            /* ===================== HEADER CHROME ===================== */
-            .topbar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                font-family: "Inter";
-                font-size: 11px;
-                letter-spacing: 0.22em;
-                text-transform: uppercase;
-                color: var(--muted);
-                padding-bottom: 14px;
-                border-bottom: 1px solid var(--rule);
-                margin-bottom: 36px;
+            to {
+                opacity: 1;
+                transform: scale(1);
             }
-            .topbar .lhs {
-                display: flex;
-                align-items: center;
-                gap: 14px;
+        }
+
+        /* drawing animation for SVGs */
+        .draw path,
+        .draw line,
+        .draw polyline,
+        .draw circle {
+            stroke-dasharray: 1200;
+            stroke-dashoffset: 1200;
+        }
+
+        .slide.active .draw path,
+        .slide.active .draw line,
+        .slide.active .draw polyline,
+        .slide.active .draw circle {
+            animation: dash 2.2s cubic-bezier(0.2, 0.7, 0.2, 1) forwards 0.35s;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
             }
-            .seal {
-                width: 22px;
-                height: 22px;
-                border-radius: 50%;
-                background: radial-gradient(
-                    circle at 35% 30%,
-                    var(--accent),
-                    #6e4f1f
-                );
-                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06) inset;
-            }
-            .topbar .rhs {
-                font-feature-settings: "tnum" on;
+        }
+
+        /* float dots for cover */
+        .floatdot {
+            animation: floaty 5s ease-in-out infinite alternate;
+            transform-origin: center;
+        }
+
+        @keyframes floaty {
+            from {
+                transform: translate(0, 0);
             }
 
-            /* ===================== TITLE TYPOGRAPHY ===================== */
-            .eyebrow {
-                font-family: "Inter";
-                font-weight: 500;
-                font-size: 13px;
-                letter-spacing: 0.36em;
-                text-transform: uppercase;
-                color: var(--accent);
-                margin-bottom: 18px;
+            to {
+                transform: translate(0, -6px);
             }
-            h1.display {
-                font-family: "Cormorant Garamond", serif;
-                font-weight: 600;
-                font-size: clamp(42px, 5.6vw, 88px);
-                line-height: 1.02;
-                letter-spacing: -0.01em;
-                color: var(--ink);
-            }
-            h1.display em {
-                font-style: italic;
-                color: var(--accent);
-                font-weight: 500;
-            }
-            h2.title {
-                font-family: "Cormorant Garamond", serif;
-                font-weight: 600;
-                font-size: clamp(34px, 3.6vw, 56px);
-                line-height: 1.06;
-                letter-spacing: -0.005em;
-                color: var(--ink);
-                margin-bottom: 8px;
-            }
-            h2.title em {
-                font-style: italic;
-                color: var(--accent-2);
-                font-weight: 500;
-            }
-            .subtitle {
-                font-family: "Cormorant Garamond", serif;
-                font-style: italic;
-                font-size: clamp(18px, 1.6vw, 26px);
-                color: var(--ink-soft);
-                margin-bottom: 28px;
-            }
-            p,
-            li {
-                font-family: "Inter";
-                font-weight: 400;
-                font-size: clamp(15px, 1.18vw, 19px);
-                line-height: 1.55;
-                color: var(--ink-soft);
-            }
-            .lead {
-                font-size: clamp(17px, 1.32vw, 22px);
-                color: var(--ink);
-                font-weight: 400;
-            }
-            .small {
-                font-size: 13px;
-                color: var(--muted);
-                letter-spacing: 0.02em;
-            }
-            .mono {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 13px;
-                color: var(--ink-soft);
-            }
+        }
 
-            /* ===================== LAYOUTS ===================== */
-            .body {
-                display: grid;
-                gap: 48px;
-                flex: 1;
-                min-height: 0;
-            }
+        /* ===================== UI CHROME ===================== */
+        .controls {
+            position: fixed;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14, 26, 53, 0.78);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-family: "Inter";
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
+        }
+
+        .controls button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .controls button:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .progress {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 3px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s ease;
+            z-index: 5;
+        }
+
+        /* ===================== UTILS ===================== */
+        .row-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .stat .num {
+            font-family: "Cormorant Garamond";
+            font-size: 48px;
+            color: var(--ink);
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .stat .lab {
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(to right,
+                    rgba(14, 26, 53, 0.04) 1px,
+                    transparent 1px),
+                linear-gradient(to bottom,
+                    rgba(14, 26, 53, 0.04) 1px,
+                    transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* margin marks */
+        .marg {
+            position: absolute;
+            font-family: "JetBrains Mono";
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.18em;
+        }
+
+        .marg.tl {
+            top: 18px;
+            left: 24px;
+        }
+
+        .marg.tr {
+            top: 18px;
+            right: 24px;
+        }
+
+        .marg.bl {
+            bottom: 14px;
+            left: 24px;
+        }
+
+        .marg.br {
+            bottom: 14px;
+            right: 24px;
+        }
+
+        @media (max-width: 900px) {
             .body.two {
-                grid-template-columns: 1.05fr 0.95fr;
-            }
-            .body.text {
                 grid-template-columns: 1fr;
-                max-width: 1100px;
-            }
-            .body.three {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-            .col {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                min-width: 0;
+                gap: 24px;
             }
 
-            /* ===================== LISTS / CALLOUTS ===================== */
-            ul.clean {
-                list-style: none;
-                display: flex;
-                flex-direction: column;
-                gap: 14px;
-                margin-top: 18px;
-            }
-            ul.clean li {
-                position: relative;
-                padding-left: 26px;
-            }
-            ul.clean li::before {
-                content: "";
-                position: absolute;
-                left: 0;
-                top: 0.62em;
-                width: 14px;
-                height: 1.5px;
-                background: var(--accent);
-                border-radius: 1px;
-            }
-            ul.clean li strong {
-                color: var(--ink);
-                font-weight: 600;
-            }
-
-            .callout {
-                border-left: 3px solid var(--accent);
-                background: var(--bg-2);
-                padding: 18px 22px;
-                border-radius: 0 8px 8px 0;
-                margin-top: 22px;
-            }
-            .callout p {
-                font-style: italic;
-                color: var(--ink);
-                font-family: "Cormorant Garamond";
-                font-size: 22px;
-                line-height: 1.4;
-            }
-
-            .pillrow {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                margin-top: 18px;
-            }
-            .pill {
-                padding: 7px 14px;
-                border: 1px solid var(--rule);
-                border-radius: 999px;
-                font-size: 13px;
-                color: var(--ink-soft);
-                background: #fff;
-            }
-            .pill.accent {
-                background: #fdf6e6;
-                border-color: #e5cf95;
-                color: #6e4f1f;
-                font-weight: 500;
-            }
-
-            /* ===================== FIGURE ===================== */
-            .figure {
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: center;
-                gap: 14px;
-            }
-            .figure .frame {
-                background: #fff;
-                border: 1px solid var(--rule);
-                border-radius: 10px;
-                padding: 14px;
-                box-shadow: 0 8px 24px -16px rgba(14, 26, 53, 0.15);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
-            .figure .frame img {
-                max-width: 100%;
-                max-height: 46vh;
-                object-fit: contain;
-                display: block;
-            }
-            .figure .frame svg {
-                max-width: 100%;
-                max-height: 46vh;
-                display: block;
-            }
-            .caption {
-                font-family: "Cormorant Garamond";
-                font-style: italic;
-                font-size: 15px;
-                color: var(--muted);
-                text-align: center;
-                line-height: 1.4;
-            }
-
-            /* ===================== EQUATION CARDS ===================== */
-            .eqcard {
-                background: #fff;
-                border: 1px solid var(--rule);
-                border-radius: 10px;
-                padding: 22px 26px;
-                margin-top: 18px;
-                box-shadow: 0 6px 20px -14px rgba(14, 26, 53, 0.18);
-            }
-            .eqcard .eqlabel {
-                font-size: 11px;
-                letter-spacing: 0.22em;
-                text-transform: uppercase;
-                color: var(--accent);
-                margin-bottom: 8px;
-            }
-            .eqcard .katex-display {
-                margin: 0.4em 0;
-            }
-            .eqcard.compact {
-                padding: 14px 20px;
-            }
-
-            /* ===================== COVER ===================== */
             .cover {
-                padding: 0;
-                display: grid;
-                grid-template-columns: 1.1fr 0.9fr;
-                align-items: stretch;
+                grid-template-columns: 1fr;
             }
-            .cover .left {
-                padding: 90px 80px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                position: relative;
-            }
+
             .cover .right {
-                background: linear-gradient(180deg, #f0ecdf 0%, #e7e1ce 100%);
-                position: relative;
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                display: none;
             }
-            .cover .right svg {
-                width: 120%;
-                height: 120%;
-            }
-            .cover .meta {
-                position: absolute;
-                left: 80px;
-                right: 80px;
-                bottom: 60px;
-            }
-            .cover .meta .row {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-end;
-                gap: 40px;
-            }
-            .cover .meta .label {
-                font-size: 10px;
-                letter-spacing: 0.32em;
-                text-transform: uppercase;
-                color: var(--muted);
-                margin-bottom: 6px;
-            }
-            .cover .meta .name {
-                font-family: "Cormorant Garamond";
-                font-weight: 500;
-                font-size: 17px;
-                color: var(--ink);
-                line-height: 1.4;
-            }
-            .cover .ornament {
-                width: 62px;
-                height: 1.5px;
-                background: var(--accent);
-                margin-bottom: 24px;
-            }
+        }
+    </style>
+</head>
 
-            /* ===================== CLOSING ===================== */
-            .closing {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                padding: 80px;
-            }
-            .closing .display {
-                max-width: 18ch;
-            }
-            .closing .ornament {
-                width: 80px;
-                height: 1.5px;
-                background: var(--accent);
-                margin: 28px auto;
-            }
-            .closing .authors {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 18px 60px;
-                margin-top: 36px;
-            }
-            .closing .authors div {
-                font-family: "Cormorant Garamond";
-                font-size: 18px;
-                color: var(--ink-soft);
-            }
+<body>
+    <div class="progress" id="progress"></div>
 
-            /* ===================== STAGGER ANIMATIONS ===================== */
-            .slide.active .reveal {
-                animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-            }
-            .slide.active .reveal:nth-child(1) {
-                animation-delay: 0.05s;
-            }
-            .slide.active .reveal:nth-child(2) {
-                animation-delay: 0.18s;
-            }
-            .slide.active .reveal:nth-child(3) {
-                animation-delay: 0.3s;
-            }
-            .slide.active .reveal:nth-child(4) {
-                animation-delay: 0.42s;
-            }
-            .slide.active .reveal:nth-child(5) {
-                animation-delay: 0.54s;
-            }
-            .slide.active .reveal:nth-child(6) {
-                animation-delay: 0.66s;
-            }
-
-            @keyframes rise {
-                from {
-                    opacity: 0;
-                    transform: translateY(18px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .slide.active .figure .frame {
-                animation: pop 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.25s;
-            }
-            @keyframes pop {
-                from {
-                    opacity: 0;
-                    transform: scale(0.97);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-            }
-
-            /* drawing animation for SVGs */
-            .draw path,
-            .draw line,
-            .draw polyline,
-            .draw circle {
-                stroke-dasharray: 1200;
-                stroke-dashoffset: 1200;
-            }
-            .slide.active .draw path,
-            .slide.active .draw line,
-            .slide.active .draw polyline,
-            .slide.active .draw circle {
-                animation: dash 2.2s cubic-bezier(0.2, 0.7, 0.2, 1) forwards
-                    0.35s;
-            }
-            @keyframes dash {
-                to {
-                    stroke-dashoffset: 0;
-                }
-            }
-
-            /* float dots for cover */
-            .floatdot {
-                animation: floaty 5s ease-in-out infinite alternate;
-                transform-origin: center;
-            }
-            @keyframes floaty {
-                from {
-                    transform: translate(0, 0);
-                }
-                to {
-                    transform: translate(0, -6px);
-                }
-            }
-
-            /* ===================== UI CHROME ===================== */
-            .controls {
-                position: fixed;
-                bottom: 14px;
-                left: 50%;
-                transform: translateX(-50%);
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                background: rgba(14, 26, 53, 0.78);
-                backdrop-filter: blur(8px);
-                color: #fff;
-                padding: 8px 14px;
-                border-radius: 999px;
-                font-family: "Inter";
-                font-size: 12px;
-                letter-spacing: 0.06em;
-                box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
-            }
-            .controls button {
-                background: transparent;
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                color: #fff;
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: background 0.15s;
-            }
-            .controls button:hover {
-                background: rgba(255, 255, 255, 0.12);
-            }
-            .progress {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 3px;
-                background: var(--accent);
-                width: 0%;
-                transition: width 0.5s ease;
-                z-index: 5;
-            }
-
-            /* ===================== UTILS ===================== */
-            .row-between {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 30px;
-            }
-            .stat {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
-            }
-            .stat .num {
-                font-family: "Cormorant Garamond";
-                font-size: 48px;
-                color: var(--ink);
-                font-weight: 600;
-                line-height: 1;
-            }
-            .stat .lab {
-                font-size: 11px;
-                letter-spacing: 0.22em;
-                text-transform: uppercase;
-                color: var(--muted);
-            }
-
-            .grid-bg {
-                background-image:
-                    linear-gradient(
-                        to right,
-                        rgba(14, 26, 53, 0.04) 1px,
-                        transparent 1px
-                    ),
-                    linear-gradient(
-                        to bottom,
-                        rgba(14, 26, 53, 0.04) 1px,
-                        transparent 1px
-                    );
-                background-size: 32px 32px;
-            }
-
-            /* margin marks */
-            .marg {
-                position: absolute;
-                font-family: "JetBrains Mono";
-                font-size: 10px;
-                color: var(--muted);
-                letter-spacing: 0.18em;
-            }
-            .marg.tl {
-                top: 18px;
-                left: 24px;
-            }
-            .marg.tr {
-                top: 18px;
-                right: 24px;
-            }
-            .marg.bl {
-                bottom: 14px;
-                left: 24px;
-            }
-            .marg.br {
-                bottom: 14px;
-                right: 24px;
-            }
-
-            @media (max-width: 900px) {
-                .body.two {
-                    grid-template-columns: 1fr;
-                    gap: 24px;
-                }
-                .cover {
-                    grid-template-columns: 1fr;
-                }
-                .cover .right {
-                    display: none;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="progress" id="progress"></div>
-
-        <div class="stage" id="stage">
-            <!-- =========================================================
+    <div class="stage" id="stage">
+        <!-- =========================================================
      SLIDE 1 — COVER
 ========================================================= -->
-            <section class="slide cover" data-slide>
-                <div class="left">
-                    <div class="reveal">
-                        <div class="ornament"></div>
-                        <div class="eyebrow">
-                            An Academic Report · 2025–2026
+        <section class="slide cover" data-slide>
+            <div class="left">
+                <div class="reveal">
+                    <div class="ornament"></div>
+                    <div class="eyebrow">An Academic Report · 2025–2026</div>
+                </div>
+                <h1 class="display reveal">
+                    Mathematics in<br /><em>Artificial Intelligence</em>
+                </h1>
+                <p class="subtitle reveal" style="margin-top: 22px; max-width: 30ch">
+                    The geometric core — vectors as the fundamental language of
+                    artificial neural networks.
+                </p>
+                <div class="meta">
+                    <div class="row reveal">
+                        <div>
+                            <div class="label">Supervised by</div>
+                            <div class="name">Prof. Azhar Malik</div>
                         </div>
-                    </div>
-                    <h1 class="display reveal">
-                        Mathematics in<br /><em>Artificial Intelligence</em>
-                    </h1>
-                    <p
-                        class="subtitle reveal"
-                        style="margin-top: 22px; max-width: 30ch"
-                    >
-                        The geometric core — vectors as the fundamental language
-                        of artificial neural networks.
-                    </p>
-                    <div class="meta">
-                        <div class="row reveal">
-                            <div>
-                                <div class="label">Supervised by</div>
-                                <div class="name">Prof. Azhar Malik</div>
-                            </div>
-                            <div style="text-align: right">
-                                <div class="label">Department</div>
-                                <div class="name">Computer Engineering</div>
-                            </div>
+                        <div style="text-align: right">
+                            <div class="label">Department</div>
+                            <div class="name">Computer Engineering</div>
                         </div>
                     </div>
                 </div>
-                <div class="right">
-                    <!-- Decorative vector field -->
-                    <svg
-                        viewBox="0 0 600 600"
-                        xmlns="http://www.w3.org/2000/svg"
-                        preserveAspectRatio="xMidYMid slice"
-                    >
-                        <defs>
-                            <radialGradient id="halo" cx="50%" cy="50%" r="50%">
-                                <stop
-                                    offset="0%"
-                                    stop-color="#b6863b"
-                                    stop-opacity=".18"
-                                />
-                                <stop
-                                    offset="100%"
-                                    stop-color="#b6863b"
-                                    stop-opacity="0"
-                                />
-                            </radialGradient>
-                            <marker
-                                id="amb"
-                                viewBox="0 0 10 10"
-                                refX="9"
-                                refY="5"
-                                markerWidth="6"
-                                markerHeight="6"
-                                orient="auto-start-reverse"
-                            >
-                                <path
-                                    d="M 0 0 L 10 5 L 0 10 z"
-                                    fill="#b6863b"
-                                />
-                            </marker>
-                            <marker
-                                id="navy"
-                                viewBox="0 0 10 10"
-                                refX="9"
-                                refY="5"
-                                markerWidth="6"
-                                markerHeight="6"
-                                orient="auto-start-reverse"
-                            >
-                                <path
-                                    d="M 0 0 L 10 5 L 0 10 z"
-                                    fill="#2453a6"
-                                />
-                            </marker>
-                        </defs>
-                        <circle cx="300" cy="300" r="280" fill="url(#halo)" />
-                        <!-- concentric guides -->
-                        <g stroke="#b6863b" stroke-opacity=".25" fill="none">
-                            <circle cx="300" cy="300" r="80" />
-                            <circle cx="300" cy="300" r="150" />
-                            <circle cx="300" cy="300" r="220" />
+            </div>
+            <div class="right">
+                <!-- Decorative vector field -->
+                <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                        <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#b6863b" stop-opacity=".18" />
+                            <stop offset="100%" stop-color="#b6863b" stop-opacity="0" />
+                        </radialGradient>
+                        <marker id="amb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+                            orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#b6863b" />
+                        </marker>
+                        <marker id="navy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+                            orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#2453a6" />
+                        </marker>
+                    </defs>
+                    <circle cx="300" cy="300" r="280" fill="url(#halo)" />
+                    <!-- concentric guides -->
+                    <g stroke="#b6863b" stroke-opacity=".25" fill="none">
+                        <circle cx="300" cy="300" r="80" />
+                        <circle cx="300" cy="300" r="150" />
+                        <circle cx="300" cy="300" r="220" />
+                    </g>
+                    <!-- radial vectors -->
+                    <g stroke-width="2" fill="none">
+                        <g stroke="#b6863b" marker-end="url(#amb)" class="floatdot">
+                            <line x1="300" y1="300" x2="380" y2="240" />
+                            <line x1="300" y1="300" x2="220" y2="240" />
+                            <line x1="300" y1="300" x2="380" y2="380" />
+                            <line x1="300" y1="300" x2="220" y2="380" />
+                            <line x1="300" y1="300" x2="430" y2="300" />
+                            <line x1="300" y1="300" x2="170" y2="300" />
+                            <line x1="300" y1="300" x2="300" y2="170" />
+                            <line x1="300" y1="300" x2="300" y2="430" />
                         </g>
-                        <!-- radial vectors -->
-                        <g stroke-width="2" fill="none">
-                            <g
-                                stroke="#b6863b"
-                                marker-end="url(#amb)"
-                                class="floatdot"
-                            >
-                                <line x1="300" y1="300" x2="380" y2="240" />
-                                <line x1="300" y1="300" x2="220" y2="240" />
-                                <line x1="300" y1="300" x2="380" y2="380" />
-                                <line x1="300" y1="300" x2="220" y2="380" />
-                                <line x1="300" y1="300" x2="430" y2="300" />
-                                <line x1="300" y1="300" x2="170" y2="300" />
-                                <line x1="300" y1="300" x2="300" y2="170" />
-                                <line x1="300" y1="300" x2="300" y2="430" />
-                            </g>
-                            <g
-                                stroke="#2453a6"
-                                marker-end="url(#navy)"
-                                stroke-opacity=".7"
-                            >
-                                <line x1="300" y1="300" x2="460" y2="200" />
-                                <line x1="300" y1="300" x2="450" y2="430" />
-                                <line x1="300" y1="300" x2="170" y2="430" />
-                                <line x1="300" y1="300" x2="160" y2="190" />
-                            </g>
+                        <g stroke="#2453a6" marker-end="url(#navy)" stroke-opacity=".7">
+                            <line x1="300" y1="300" x2="460" y2="200" />
+                            <line x1="300" y1="300" x2="450" y2="430" />
+                            <line x1="300" y1="300" x2="170" y2="430" />
+                            <line x1="300" y1="300" x2="160" y2="190" />
                         </g>
-                        <circle cx="300" cy="300" r="6" fill="#0e1a35" />
-                    </svg>
-                </div>
-                <span class="marg tl">FOLIO · 01</span>
-                <span class="marg br">GEOMETRIC CORE</span>
-            </section>
+                    </g>
+                    <circle cx="300" cy="300" r="6" fill="#0e1a35" />
+                </svg>
+            </div>
+            <span class="marg tl">FOLIO · 01</span>
+            <span class="marg br">GEOMETRIC CORE</span>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 2 — INTRODUCTION (Section 1)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 1 · Introduction</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">Section One</div>
-                        <h2 class="title reveal">
-                            The vector is the <em>connective tissue</em> of
-                            machine intelligence.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            AI's evolution from rule-based symbolic systems to
-                            deep learning rests on a single, often invisible,
-                            mathematical object — the vector.
+                <div class="rhs">§ 1 · Introduction</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Section One</div>
+                    <h2 class="title reveal">
+                        The vector is the <em>connective tissue</em> of machine
+                        intelligence.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        AI's evolution from rule-based symbolic systems to deep learning
+                        rests on a single, often invisible, mathematical object — the
+                        vector.
+                    </p>
+                    <ul class="clean reveal">
+                        <li>
+                            <strong>Encodes meaning</strong> — images, words, sounds become
+                            coordinates.
+                        </li>
+                        <li>
+                            <strong>Stores knowledge</strong> — a network's weights are
+                            themselves vectors.
+                        </li>
+                        <li>
+                            <strong>Enables reasoning</strong> — geometry replaces symbolic
+                            rules.
+                        </li>
+                    </ul>
+                    <div class="callout reveal">
+                        <p>
+                            “In high-dimensional geometry, intelligence is not a program —
+                            it is a position.”
                         </p>
-                        <ul class="clean reveal">
-                            <li>
-                                <strong>Encodes meaning</strong> — images,
-                                words, sounds become coordinates.
-                            </li>
-                            <li>
-                                <strong>Stores knowledge</strong> — a network's
-                                weights are themselves vectors.
-                            </li>
-                            <li>
-                                <strong>Enables reasoning</strong> — geometry
-                                replaces symbolic rules.
-                            </li>
-                        </ul>
-                        <div class="callout reveal">
-                            <p>
-                                “In high-dimensional geometry, intelligence is
-                                not a program — it is a position.”
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig1_vector.png"
-                                alt="Vectors in R^2"
-                            />
-                        </div>
-                        <div class="caption">
-                            Figure 1 · A vector is an ordered tuple of numbers —
-                            an arrow in low dimension, the same algebra in any.
-                        </div>
                     </div>
                 </div>
-            </section>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig1_vector.png" alt="Vectors in R^2" />
+                    </div>
+                    <div class="caption">
+                        Figure 1 · A vector is an ordered tuple of numbers — an arrow in
+                        low dimension, the same algebra in any.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 3 — HISTORICAL CONTEXT (Section 2)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 2 · Historical Context</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            From Perceptron to High Dimension
-                        </div>
-                        <h2 class="title reveal">
-                            A neuron is a <em>hyperplane</em> in disguise.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            Rosenblatt's 1958 Perceptron treated a single neuron
-                            as a line cutting space in two — a linear classifier
-                            living on a vector space.
-                        </p>
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">The decision rule</div>
-                            $$ \mathbf{w}\cdot\mathbf{x} + b \;\gtrless\; 0 $$
-                        </div>
-                        <p class="reveal" style="margin-top: 18px">
-                            The <strong>AI Winter</strong> (1970s) arrived when
-                            researchers proved that a single linear cut cannot
-                            separate the <strong>XOR</strong> classes — the
-                            insight that eventually birthed multi-layer, "Deep"
-                            networks.
-                        </p>
-                        <div class="pillrow reveal">
-                            <span class="pill">1958 · Perceptron</span>
-                            <span class="pill">1969 · XOR limitation</span>
-                            <span class="pill accent"
-                                >1986 · Backpropagation</span
-                            >
-                        </div>
+                <div class="rhs">§ 2 · Historical Context</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">From Perceptron to High Dimension</div>
+                    <h2 class="title reveal">
+                        A neuron is a <em>hyperplane</em> in disguise.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        Rosenblatt's 1958 Perceptron treated a single neuron as a line
+                        cutting space in two — a linear classifier living on a vector
+                        space.
+                    </p>
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">The decision rule</div>
+                        $$ \mathbf{w}\cdot\mathbf{x} + b \;\gtrless\; 0 $$
                     </div>
-                    <div class="col figure reveal" style="gap: 20px">
-                        <div class="frame">
-                            <img src="figures/fig3_xor.png" alt="XOR problem" />
-                        </div>
-                        <div class="caption">
-                            Figure 3 · No straight line separates XOR (left). A
-                            nonlinear warp does (right) — the seed of deep
-                            learning.
-                        </div>
+                    <p class="reveal" style="margin-top: 18px">
+                        The <strong>AI Winter</strong> (1970s) arrived when researchers
+                        proved that a single linear cut cannot separate the
+                        <strong>XOR</strong> classes — the insight that eventually birthed
+                        multi-layer, "Deep" networks.
+                    </p>
+                    <div class="pillrow reveal">
+                        <span class="pill">1958 · Perceptron</span>
+                        <span class="pill">1969 · XOR limitation</span>
+                        <span class="pill accent">1986 · Backpropagation</span>
                     </div>
                 </div>
-            </section>
+                <div class="col figure reveal" style="gap: 20px">
+                    <div class="frame">
+                        <img src="figures/fig3_xor.png" alt="XOR problem" />
+                    </div>
+                    <div class="caption">
+                        Figure 3 · No straight line separates XOR (left). A nonlinear warp
+                        does (right) — the seed of deep learning.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 4 — DATA REPRESENTATION (Section 3)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 3 · Data Representation</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">Vectorization</div>
-                        <h2 class="title reveal">
-                            Reality, projected into <em>coordinates</em>.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 14px">
-                            Before a network can think, the world must become
-                            numbers.
+                <div class="rhs">§ 3 · Data Representation</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Vectorization</div>
+                    <h2 class="title reveal">
+                        Reality, projected into <em>coordinates</em>.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 14px">
+                        Before a network can think, the world must become numbers.
+                    </p>
+
+                    <div class="reveal" style="margin-top: 22px">
+                        <div class="eyebrow" style="color: var(--accent-2); font-size: 11px">
+                            Computer Vision
+                        </div>
+                        <p>
+                            A 256 × 256 grayscale image is a single point in
+                            <strong>65,536-dimensional space</strong>. The network learns
+                            regions where "cat" lives, distinct from "dog".
                         </p>
-
-                        <div class="reveal" style="margin-top: 22px">
-                            <div
-                                class="eyebrow"
-                                style="color: var(--accent-2); font-size: 11px"
-                            >
-                                Computer Vision
-                            </div>
-                            <p>
-                                A 256 × 256 grayscale image is a single point in
-                                <strong>65,536-dimensional space</strong>. The
-                                network learns regions where "cat" lives,
-                                distinct from "dog".
-                            </p>
-                        </div>
-
-                        <div class="reveal" style="margin-top: 18px">
-                            <div
-                                class="eyebrow"
-                                style="color: var(--accent-2); font-size: 11px"
-                            >
-                                Natural Language
-                            </div>
-                            <p>
-                                Words become 768- or 1024-dimensional
-                                <strong>embeddings</strong>; meaning becomes
-                                direction.
-                            </p>
-                        </div>
-
-                        <div
-                            class="eqcard reveal compact"
-                            style="margin-top: 18px"
-                        >
-                            <div class="eqlabel">Linguistic arithmetic</div>
-                            $$ \overrightarrow{\text{king}} -
-                            \overrightarrow{\text{man}} +
-                            \overrightarrow{\text{woman}} \;\approx\;
-                            \overrightarrow{\text{queen}} $$
-                        </div>
                     </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig4_embeddings.png"
-                                alt="Word embeddings"
-                            />
+
+                    <div class="reveal" style="margin-top: 18px">
+                        <div class="eyebrow" style="color: var(--accent-2); font-size: 11px">
+                            Natural Language
                         </div>
-                        <div class="caption">
-                            Figure 4 · Embeddings store relationships as
-                            <em>geometric offsets</em> — the king→queen vector
-                            parallels man→woman.
-                        </div>
+                        <p>
+                            Words become 768- or 1024-dimensional
+                            <strong>embeddings</strong>; meaning becomes direction.
+                        </p>
+                    </div>
+
+                    <div class="eqcard reveal compact" style="margin-top: 18px">
+                        <div class="eqlabel">Linguistic arithmetic</div>
+                        $$ \overrightarrow{\text{king}} - \overrightarrow{\text{man}} +
+                        \overrightarrow{\text{woman}} \;\approx\;
+                        \overrightarrow{\text{queen}} $$
                     </div>
                 </div>
-            </section>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig4_embeddings.png" alt="Word embeddings" />
+                    </div>
+                    <div class="caption">
+                        Figure 4 · Embeddings store relationships as
+                        <em>geometric offsets</em> — the king→queen vector parallels
+                        man→woman.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 5 — ARCHITECTURE OF LEARNING (Section 4)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 4 · Architecture of Learning</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            Weights, dot products, descent
-                        </div>
-                        <h2 class="title reveal">
-                            Each weight vector is a <em>template</em>; learning
-                            is a walk downhill.
-                        </h2>
+                <div class="rhs">§ 4 · Architecture of Learning</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Weights, dot products, descent</div>
+                    <h2 class="title reveal">
+                        Each weight vector is a <em>template</em>; learning is a walk
+                        downhill.
+                    </h2>
 
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">A neuron, geometrically</div>
-                            $$ z = \mathbf{w}\cdot\mathbf{x} + b, \qquad a =
-                            \varphi(z) $$
-                            <p class="small" style="margin-top: 8px">
-                                The dot product measures <em>alignment</em> —
-                                how much $\mathbf{x}$ projects onto the stored
-                                pattern $\mathbf{w}$.
-                            </p>
-                        </div>
-
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">
-                                Gradient descent in a million-dimensional
-                                landscape
-                            </div>
-                            $$ \mathbf{w}_{t+1} = \mathbf{w}_{t} -
-                            \eta\,\nabla_{\mathbf{w}}\mathcal{L} $$
-                            <p class="small" style="margin-top: 8px">
-                                The gradient is itself a vector pointing uphill;
-                                we step against it, again and again.
-                            </p>
-                        </div>
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">A neuron, geometrically</div>
+                        $$ z = \mathbf{w}\cdot\mathbf{x} + b, \qquad a = \varphi(z) $$
+                        <p class="small" style="margin-top: 8px">
+                            The dot product measures <em>alignment</em> — how much
+                            $\mathbf{x}$ projects onto the stored pattern $\mathbf{w}$.
+                        </p>
                     </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig6_gradient.png"
-                                alt="Gradient descent landscape"
-                            />
+
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">
+                            Gradient descent in a million-dimensional landscape
                         </div>
-                        <div class="caption">
-                            Figure 6 · A schematic loss surface. With 100 M
-                            weights, the landscape lives in 100 M dimensions —
-                            but the rule is the same.
-                        </div>
+                        $$ \mathbf{w}_{t+1} = \mathbf{w}_{t} -
+                        \eta\,\nabla_{\mathbf{w}}\mathcal{L} $$
+                        <p class="small" style="margin-top: 8px">
+                            The gradient is itself a vector pointing uphill; we step against
+                            it, again and again.
+                        </p>
                     </div>
                 </div>
-            </section>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig6_gradient.png" alt="Gradient descent landscape" />
+                    </div>
+                    <div class="caption">
+                        Figure 6 · A schematic loss surface. With 100 M weights, the
+                        landscape lives in 100 M dimensions — but the rule is the same.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 6 — LATENT SPACES (Section 5)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">
-                        § 5 · Latent Spaces & the Manifold Hypothesis
-                    </div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            Where data really lives
-                        </div>
-                        <h2 class="title reveal">
-                            High-D data lies on a <em>low-D manifold</em>.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            Pixels live in millions of dimensions, but the set
-                            of <em>natural</em> images forms a thin curved
-                            surface inside that volume.
+                <div class="rhs">§ 5 · Latent Spaces & the Manifold Hypothesis</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Where data really lives</div>
+                    <h2 class="title reveal">
+                        High-D data lies on a <em>low-D manifold</em>.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        Pixels live in millions of dimensions, but the set of
+                        <em>natural</em> images forms a thin curved surface inside that
+                        volume.
+                    </p>
+                    <ul class="clean reveal">
+                        <li><strong>Early layers</strong> learn edges and textures.</li>
+                        <li><strong>Deep layers</strong> learn abstract concepts.</li>
+                        <li>
+                            <strong>Together</strong> they "unroll" the manifold so a simple
+                            classifier can finish the job.
+                        </li>
+                    </ul>
+                    <div class="callout reveal">
+                        <p>
+                            “Activation functions warp the page; deep networks crumple paper
+                            until the dots fall apart.”
                         </p>
-                        <ul class="clean reveal">
-                            <li>
-                                <strong>Early layers</strong> learn edges and
-                                textures.
-                            </li>
-                            <li>
-                                <strong>Deep layers</strong> learn abstract
-                                concepts.
-                            </li>
-                            <li>
-                                <strong>Together</strong> they "unroll" the
-                                manifold so a simple classifier can finish the
-                                job.
-                            </li>
-                        </ul>
-                        <div class="callout reveal">
-                            <p>
-                                “Activation functions warp the page; deep
-                                networks crumple paper until the dots fall
-                                apart.”
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig7_manifold.png"
-                                alt="Manifold unrolling"
-                            />
-                        </div>
-                        <div class="caption">
-                            Figure 7 · A curved 3-D shape really lives on a 2-D
-                            surface; a network learns the map that flattens it.
-                        </div>
                     </div>
                 </div>
-            </section>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig7_manifold.png" alt="Manifold unrolling" />
+                    </div>
+                    <div class="caption">
+                        Figure 7 · A curved 3-D shape really lives on a 2-D surface; a
+                        network learns the map that flattens it.
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 7 — ORTHOGONALITY (Section 6)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">
-                        § 6 · Orthogonality & Cosine Similarity
-                    </div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            Why high dimensions are spacious
-                        </div>
-                        <h2 class="title reveal">
-                            Two random vectors in high-D are
-                            <em>almost orthogonal</em>.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            That near-90° property is what lets a single network
-                            store <strong>vast</strong> amounts of information
-                            without interference — unrelated concepts simply
-                            don't see one another.
+                <div class="rhs">§ 6 · Orthogonality & Cosine Similarity</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Why high dimensions are spacious</div>
+                    <h2 class="title reveal">
+                        Two random vectors in high-D are
+                        <em>almost orthogonal</em>.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        That near-90° property is what lets a single network store
+                        <strong>vast</strong> amounts of information without interference
+                        — unrelated concepts simply don't see one another.
+                    </p>
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">Cosine similarity</div>
+                        $$ \cos\theta \;=\;
+                        \frac{\mathbf{a}\cdot\mathbf{b}}{\lVert\mathbf{a}\rVert\,\lVert\mathbf{b}\rVert}
+                        $$
+                        <p class="small" style="margin-top: 8px">
+                            Small angle → high similarity. Right angle → no relationship at
+                            all.
                         </p>
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">Cosine similarity</div>
-                            $$ \cos\theta \;=\;
-                            \frac{\mathbf{a}\cdot\mathbf{b}}{\lVert\mathbf{a}\rVert\,\lVert\mathbf{b}\rVert}
-                            $$
-                            <p class="small" style="margin-top: 8px">
-                                Small angle → high similarity. Right angle → no
-                                relationship at all.
-                            </p>
-                        </div>
-                        <div class="pillrow reveal">
-                            <span class="pill">θ ≈ 0° · synonyms</span>
-                            <span class="pill">θ ≈ 90° · independent</span>
-                            <span class="pill">θ ≈ 180° · opposites</span>
-                        </div>
                     </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig8_cosine.png"
-                                alt="Cosine similarity"
-                            />
-                        </div>
-                        <div class="caption">
-                            Figure 8 · Training pulls related vectors together
-                            (small θ) and pushes unrelated ones apart (large θ).
-                        </div>
+                    <div class="pillrow reveal">
+                        <span class="pill">θ ≈ 0° · synonyms</span>
+                        <span class="pill">θ ≈ 90° · independent</span>
+                        <span class="pill">θ ≈ 180° · opposites</span>
                     </div>
                 </div>
-            </section>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig8_cosine.png" alt="Cosine similarity" />
+                    </div>
+                    <div class="caption">
+                        Figure 8 · Training pulls related vectors together (small θ) and
+                        pushes unrelated ones apart (large θ).
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 8 — CONVOLUTION (Section 7)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 7 · Convolution & Tensors</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            From vectors to volumes
-                        </div>
-                        <h2 class="title reveal">
-                            CNNs slide a small <em>weight pattern</em> across an
-                            image.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            The input is no longer a 1-D vector but a 3-D tensor
-                            (width × height × channels). The weight vector
-                            becomes a <strong>kernel</strong> — a tiny template
-                            that produces a localized dot product at every
-                            spatial position.
-                        </p>
-                        <ul class="clean reveal">
-                            <li>
-                                <strong>Feature maps</strong> reveal
-                                <em>where</em> a pattern occurs.
-                            </li>
-                            <li>
-                                <strong>Pooling</strong> compresses location
-                                into existence.
-                            </li>
-                            <li>
-                                By the final layer, the spatial image is a
-                                single <strong>abstract feature vector</strong>.
-                            </li>
-                        </ul>
+                <div class="rhs">§ 7 · Convolution & Tensors</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">From vectors to volumes</div>
+                    <h2 class="title reveal">
+                        CNNs slide a small <em>weight pattern</em> across an image.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        The input is no longer a 1-D vector but a 3-D tensor (width ×
+                        height × channels). The weight vector becomes a
+                        <strong>kernel</strong> — a tiny template that produces a
+                        localized dot product at every spatial position.
+                    </p>
+                    <ul class="clean reveal">
+                        <li>
+                            <strong>Feature maps</strong> reveal <em>where</em> a pattern
+                            occurs.
+                        </li>
+                        <li>
+                            <strong>Pooling</strong> compresses location into existence.
+                        </li>
+                        <li>
+                            By the final layer, the spatial image is a single
+                            <strong>abstract feature vector</strong>.
+                        </li>
+                    </ul>
+                </div>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig9_cnn.png" alt="CNN filter sliding" />
                     </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig9_cnn.png"
-                                alt="CNN filter sliding"
-                            />
-                        </div>
-                        <div class="caption">
-                            Figure 9 · A 3 × 3 kernel sweeps across a 5 × 5
-                            input — every cell of the feature map is a localized
-                            dot product.
-                        </div>
+                    <div class="caption">
+                        Figure 9 · A 3 × 3 kernel sweeps across a 5 × 5 input — every cell
+                        of the feature map is a localized dot product.
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 9 — TRANSFORMER / ATTENTION (Section 8)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 8 · Transformers — Attention</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            The decade's biggest leap
-                        </div>
-                        <h2 class="title reveal">
-                            Attention is just <em>weighted</em> dot products.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 14px">
-                            Every token projects itself three ways:
-                        </p>
-                        <ul class="clean reveal">
-                            <li><strong>Q</strong> — what am I looking for?</li>
-                            <li><strong>K</strong> — what do I contain?</li>
-                            <li><strong>V</strong> — what do I pass on?</li>
-                        </ul>
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">
-                                Scaled dot-product attention
-                            </div>
-                            $$ \text{Attention}(Q,K,V) =
-                            \mathrm{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right)V
-                            $$
-                        </div>
-                        <p class="reveal" style="margin-top: 14px">
-                            The result is a <em>dynamic embedding</em> — a
-                            word's vector shifts position depending on the rest
-                            of the sentence.
-                        </p>
+                <div class="rhs">§ 8 · Transformers — Attention</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">The decade's biggest leap</div>
+                    <h2 class="title reveal">
+                        Attention is just <em>weighted</em> dot products.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 14px">
+                        Every token projects itself three ways:
+                    </p>
+                    <ul class="clean reveal">
+                        <li><strong>Q</strong> — what am I looking for?</li>
+                        <li><strong>K</strong> — what do I contain?</li>
+                        <li><strong>V</strong> — what do I pass on?</li>
+                    </ul>
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">Scaled dot-product attention</div>
+                        $$ \text{Attention}(Q,K,V) =
+                        \mathrm{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right)V $$
                     </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig10_attention.png"
-                                alt="Attention weights"
-                            />
-                        </div>
-                        <div class="caption">
-                            Figure 10 · Attention from "sat" to every other
-                            token. Thicker line = stronger weight; "mat" wins.
-                        </div>
+                    <p class="reveal" style="margin-top: 14px">
+                        The result is a <em>dynamic embedding</em> — a word's vector
+                        shifts position depending on the rest of the sentence.
+                    </p>
+                </div>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig10_attention.png" alt="Attention weights" />
+                    </div>
+                    <div class="caption">
+                        Figure 10 · Attention from "sat" to every other token. Thicker
+                        line = stronger weight; "mat" wins.
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 10 — MEMORY / VECTOR DATABASES (Section 9)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 9 · Memory — Vector Databases</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            Long-term memory for AI
-                        </div>
-                        <h2 class="title reveal">
-                            Search by <em>meaning</em>, not by characters.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            Traditional databases match keywords.
-                            <strong>Vector databases</strong>
-                            embed every document as a point and answer queries
-                            by
-                            <em>nearest-neighbour search</em> in that space.
-                        </p>
-                        <ul class="clean reveal">
-                            <li>Question is embedded into the same space.</li>
-                            <li>
-                                Closest vectors are returned by
-                                <strong>cosine</strong> or
-                                <strong>Euclidean</strong> distance.
-                            </li>
-                            <li>
-                                Powers retrieval-augmented generation, semantic
-                                search, recommendation.
-                            </li>
-                        </ul>
-                        <div class="callout reveal">
-                            <p>
-                                “Geometry replaces grep — proximity becomes
-                                relevance.”
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <!-- Custom SVG: vector database retrieval -->
-                            <svg
-                                class="draw"
-                                viewBox="0 0 600 420"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <defs>
-                                    <radialGradient
-                                        id="qdot"
-                                        cx="50%"
-                                        cy="50%"
-                                        r="50%"
-                                    >
-                                        <stop
-                                            offset="0%"
-                                            stop-color="#b6863b"
-                                        />
-                                        <stop
-                                            offset="100%"
-                                            stop-color="#7a5824"
-                                        />
-                                    </radialGradient>
-                                </defs>
-                                <!-- frame -->
-                                <rect
-                                    x="20"
-                                    y="20"
-                                    width="560"
-                                    height="380"
-                                    rx="8"
-                                    fill="none"
-                                    stroke="#d8d3c2"
-                                />
-                                <text
-                                    x="36"
-                                    y="46"
-                                    font-family="JetBrains Mono"
-                                    font-size="11"
-                                    fill="#6b7390"
-                                    letter-spacing="2"
-                                >
-                                    EMBEDDING SPACE
-                                </text>
-
-                                <!-- corpus dots -->
-                                <g fill="#2453a6" fill-opacity=".55">
-                                    <circle cx="120" cy="120" r="6" />
-                                    <circle cx="170" cy="80" r="6" />
-                                    <circle cx="210" cy="140" r="6" />
-                                    <circle cx="80" cy="200" r="6" />
-                                    <circle cx="180" cy="220" r="6" />
-                                    <circle cx="250" cy="200" r="6" />
-                                    <circle cx="430" cy="100" r="6" />
-                                    <circle cx="490" cy="150" r="6" />
-                                    <circle cx="460" cy="220" r="6" />
-                                    <circle cx="520" cy="290" r="6" />
-                                    <circle cx="120" cy="330" r="6" />
-                                    <circle cx="200" cy="360" r="6" />
-                                    <circle cx="290" cy="340" r="6" />
-                                    <circle cx="380" cy="320" r="6" />
-                                    <circle cx="440" cy="350" r="6" />
-                                </g>
-
-                                <!-- nearest neighbours highlighted -->
-                                <g fill="#b6863b">
-                                    <circle cx="320" cy="230" r="7" />
-                                    <circle cx="360" cy="200" r="7" />
-                                    <circle cx="290" cy="260" r="7" />
-                                </g>
-
-                                <!-- query vector -->
-                                <circle
-                                    cx="330"
-                                    cy="240"
-                                    r="9"
-                                    fill="url(#qdot)"
-                                    stroke="#fbfaf6"
-                                    stroke-width="2"
-                                />
-                                <circle
-                                    cx="330"
-                                    cy="240"
-                                    r="60"
-                                    fill="none"
-                                    stroke="#b6863b"
-                                    stroke-opacity=".55"
-                                    stroke-dasharray="4 4"
-                                />
-                                <circle
-                                    cx="330"
-                                    cy="240"
-                                    r="95"
-                                    fill="none"
-                                    stroke="#b6863b"
-                                    stroke-opacity=".25"
-                                    stroke-dasharray="4 4"
-                                />
-
-                                <!-- query label -->
-                                <line
-                                    x1="330"
-                                    y1="240"
-                                    x2="430"
-                                    y2="380"
-                                    stroke="#0e1a35"
-                                    stroke-width="1.2"
-                                />
-                                <text
-                                    x="436"
-                                    y="382"
-                                    font-family="Cormorant Garamond"
-                                    font-style="italic"
-                                    font-size="16"
-                                    fill="#0e1a35"
-                                >
-                                    query vector
-                                </text>
-
-                                <!-- arrow connectors -->
-                                <g
-                                    stroke="#b6863b"
-                                    stroke-width="1.4"
-                                    fill="none"
-                                    stroke-dasharray="3 3"
-                                >
-                                    <line x1="330" y1="240" x2="320" y2="230" />
-                                    <line x1="330" y1="240" x2="360" y2="200" />
-                                    <line x1="330" y1="240" x2="290" y2="260" />
-                                </g>
-
-                                <text
-                                    x="36"
-                                    y="395"
-                                    font-family="Inter"
-                                    font-size="11"
-                                    fill="#6b7390"
-                                >
-                                    k-NN by cosine similarity returns 3 closest
-                                    documents
-                                </text>
-                            </svg>
-                        </div>
-                        <div class="caption">
-                            A query is embedded into the same space; the
-                            database returns its <em>nearest neighbours</em>.
-                        </div>
+                <div class="rhs">§ 9 · Memory — Vector Databases</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Long-term memory for AI</div>
+                    <h2 class="title reveal">
+                        Search by <em>meaning</em>, not by characters.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        Traditional databases match keywords.
+                        <strong>Vector databases</strong>
+                        embed every document as a point and answer queries by
+                        <em>nearest-neighbour search</em> in that space.
+                    </p>
+                    <ul class="clean reveal">
+                        <li>Question is embedded into the same space.</li>
+                        <li>
+                            Closest vectors are returned by
+                            <strong>cosine</strong> or <strong>Euclidean</strong> distance.
+                        </li>
+                        <li>
+                            Powers retrieval-augmented generation, semantic search,
+                            recommendation.
+                        </li>
+                    </ul>
+                    <div class="callout reveal">
+                        <p>“Geometry replaces grep — proximity becomes relevance.”</p>
                     </div>
                 </div>
-            </section>
 
-            <!-- =========================================================
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <!-- Custom SVG: vector database retrieval -->
+                        <svg class="draw" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="qdot" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="#b6863b" />
+                                    <stop offset="100%" stop-color="#7a5824" />
+                                </radialGradient>
+                            </defs>
+                            <!-- frame -->
+                            <rect x="20" y="20" width="560" height="380" rx="8" fill="none" stroke="#d8d3c2" />
+                            <text x="36" y="46" font-family="JetBrains Mono" font-size="11" fill="#6b7390"
+                                letter-spacing="2">
+                                EMBEDDING SPACE
+                            </text>
+
+                            <!-- corpus dots -->
+                            <g fill="#2453a6" fill-opacity=".55">
+                                <circle cx="120" cy="120" r="6" />
+                                <circle cx="170" cy="80" r="6" />
+                                <circle cx="210" cy="140" r="6" />
+                                <circle cx="80" cy="200" r="6" />
+                                <circle cx="180" cy="220" r="6" />
+                                <circle cx="250" cy="200" r="6" />
+                                <circle cx="430" cy="100" r="6" />
+                                <circle cx="490" cy="150" r="6" />
+                                <circle cx="460" cy="220" r="6" />
+                                <circle cx="520" cy="290" r="6" />
+                                <circle cx="120" cy="330" r="6" />
+                                <circle cx="200" cy="360" r="6" />
+                                <circle cx="290" cy="340" r="6" />
+                                <circle cx="380" cy="320" r="6" />
+                                <circle cx="440" cy="350" r="6" />
+                            </g>
+
+                            <!-- nearest neighbours highlighted -->
+                            <g fill="#b6863b">
+                                <circle cx="320" cy="230" r="7" />
+                                <circle cx="360" cy="200" r="7" />
+                                <circle cx="290" cy="260" r="7" />
+                            </g>
+
+                            <!-- query vector -->
+                            <circle cx="330" cy="240" r="9" fill="url(#qdot)" stroke="#fbfaf6" stroke-width="2" />
+                            <circle cx="330" cy="240" r="60" fill="none" stroke="#b6863b" stroke-opacity=".55"
+                                stroke-dasharray="4 4" />
+                            <circle cx="330" cy="240" r="95" fill="none" stroke="#b6863b" stroke-opacity=".25"
+                                stroke-dasharray="4 4" />
+
+                            <!-- query label -->
+                            <line x1="330" y1="240" x2="430" y2="380" stroke="#0e1a35" stroke-width="1.2" />
+                            <text x="436" y="382" font-family="Cormorant Garamond" font-style="italic" font-size="16"
+                                fill="#0e1a35">
+                                query vector
+                            </text>
+
+                            <!-- arrow connectors -->
+                            <g stroke="#b6863b" stroke-width="1.4" fill="none" stroke-dasharray="3 3">
+                                <line x1="330" y1="240" x2="320" y2="230" />
+                                <line x1="330" y1="240" x2="360" y2="200" />
+                                <line x1="330" y1="240" x2="290" y2="260" />
+                            </g>
+
+                            <text x="36" y="395" font-family="Inter" font-size="11" fill="#6b7390">
+                                k-NN by cosine similarity returns 3 closest documents
+                            </text>
+                        </svg>
+                    </div>
+                    <div class="caption">
+                        A query is embedded into the same space; the database returns its
+                        <em>nearest neighbours</em>.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
      SLIDE 11 — DIMENSIONALITY (Section 10)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 10 · The Curse of Dimensionality</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            A peril of high-D space
+                <div class="rhs">§ 10 · The Curse of Dimensionality</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">A peril of high-D space</div>
+                    <h2 class="title reveal">
+                        In high dimensions, <em>everything is far</em> — and almost on the
+                        edge.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        As the number of dimensions grows, the volume of space explodes.
+                        Data becomes sparse; pairwise distances concentrate; "nearness"
+                        loses meaning.
+                    </p>
+                    <div class="row-between reveal" style="margin-top: 24px; gap: 50px">
+                        <div class="stat">
+                            <div class="num">≈100%</div>
+                            <div class="lab">of the volume<br />lies near the boundary</div>
                         </div>
-                        <h2 class="title reveal">
-                            In high dimensions, <em>everything is far</em> — and
-                            almost on the edge.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            As the number of dimensions grows, the volume of
-                            space explodes. Data becomes sparse; pairwise
-                            distances concentrate; "nearness" loses meaning.
-                        </p>
-                        <div
-                            class="row-between reveal"
-                            style="margin-top: 24px; gap: 50px"
-                        >
-                            <div class="stat">
-                                <div class="num">≈100%</div>
-                                <div class="lab">
-                                    of the volume<br />lies near the boundary
-                                </div>
-                            </div>
-                            <div class="stat">
-                                <div class="num">d ≫ 1</div>
-                                <div class="lab">
-                                    distances between points<br />collapse to a
-                                    single value
-                                </div>
+                        <div class="stat">
+                            <div class="num">d ≫ 1</div>
+                            <div class="lab">
+                                distances between points<br />collapse to a single value
                             </div>
                         </div>
-                        <p class="reveal" style="margin-top: 22px">
-                            Networks must therefore be carefully
-                            <strong>regularized</strong> — through layer
-                            normalization, weight decay, and dropout — so their
-                            representations remain stable.
-                        </p>
                     </div>
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <img
-                                src="figures/fig11_curse.png"
-                                alt="Curse of dimensionality"
-                            />
-                        </div>
-                        <div class="caption">
-                            Figure 11 · In a unit hypercube, the fraction of
-                            volume within 5% of an edge rises with dimension.
-                        </div>
+                    <p class="reveal" style="margin-top: 22px">
+                        Networks must therefore be carefully
+                        <strong>regularized</strong> — through layer normalization, weight
+                        decay, and dropout — so their representations remain stable.
+                    </p>
+                </div>
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <img src="figures/fig11_curse.png" alt="Curse of dimensionality" />
+                    </div>
+                    <div class="caption">
+                        Figure 11 · In a unit hypercube, the fraction of volume within 5%
+                        of an edge rises with dimension.
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 12 — NORMALIZATION (Section 11)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
+                </div>
+                <div class="rhs">§ 11 · Normalization & Vector Magnitude</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">Direction over intensity</div>
+                    <h2 class="title reveal">
+                        Normalize the magnitude — let the
+                        <em>direction</em> carry the meaning.
+                    </h2>
+                    <p class="lead reveal" style="margin-top: 14px">
+                        If a vector grows too large, activation functions saturate,
+                        gradients vanish, learning stops. Constraining vectors to a unit
+                        sphere forces the network to focus on <em>where</em>
+                        the vector points, not how loud it shouts.
+                    </p>
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">L₂ normalization</div>
+                        $$ \hat{\mathbf{x}} \;=\;
+                        \frac{\mathbf{x}}{\lVert\mathbf{x}\rVert_2} $$
                     </div>
-                    <div class="rhs">
-                        § 11 · Normalization & Vector Magnitude
+                    <div class="eqcard reveal compact">
+                        <div class="eqlabel">
+                            Softmax — turning a vector into a probability
+                        </div>
+                        $$ \mathrm{softmax}(\mathbf{z})_i \;=\; \frac{e^{z_i}}{\sum_{j}
+                        e^{z_j}} $$
                     </div>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            Direction over intensity
-                        </div>
-                        <h2 class="title reveal">
-                            Normalize the magnitude — let the
-                            <em>direction</em> carry the meaning.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 14px">
-                            If a vector grows too large, activation functions
-                            saturate, gradients vanish, learning stops.
-                            Constraining vectors to a unit sphere forces the
-                            network to focus on <em>where</em>
-                            the vector points, not how loud it shouts.
-                        </p>
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">L₂ normalization</div>
-                            $$ \hat{\mathbf{x}} \;=\;
-                            \frac{\mathbf{x}}{\lVert\mathbf{x}\rVert_2} $$
-                        </div>
-                        <div class="eqcard reveal compact">
-                            <div class="eqlabel">
-                                Softmax — turning a vector into a probability
-                            </div>
-                            $$ \mathrm{softmax}(\mathbf{z})_i \;=\;
-                            \frac{e^{z_i}}{\sum_{j} e^{z_j}} $$
-                        </div>
+
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <!-- Custom SVG: vectors projected to unit circle -->
+                        <svg class="draw" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <marker id="arr1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+                                    orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#2453a6" />
+                                </marker>
+                                <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+                                    orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#b6863b" />
+                                </marker>
+                            </defs>
+                            <rect x="20" y="20" width="560" height="380" rx="8" fill="none" stroke="#d8d3c2" />
+                            <text x="36" y="46" font-family="JetBrains Mono" font-size="11" fill="#6b7390"
+                                letter-spacing="2">
+                                UNIT SPHERE PROJECTION
+                            </text>
+
+                            <g transform="translate(300,230)">
+                                <!-- axes -->
+                                <line x1="-180" y1="0" x2="180" y2="0" stroke="#d8d3c2" />
+                                <line x1="0" y1="-160" x2="0" y2="160" stroke="#d8d3c2" />
+                                <!-- unit circle -->
+                                <circle cx="0" cy="0" r="120" fill="none" stroke="#b6863b" stroke-opacity=".7"
+                                    stroke-dasharray="5 4" />
+
+                                <!-- raw vectors -->
+                                <line x1="0" y1="0" x2="170" y2="-90" stroke="#2453a6" stroke-width="2.2"
+                                    marker-end="url(#arr1)" />
+                                <line x1="0" y1="0" x2="-160" y2="-110" stroke="#2453a6" stroke-width="2.2"
+                                    marker-end="url(#arr1)" />
+                                <line x1="0" y1="0" x2="-130" y2="120" stroke="#2453a6" stroke-width="2.2"
+                                    marker-end="url(#arr1)" />
+                                <line x1="0" y1="0" x2="100" y2="140" stroke="#2453a6" stroke-width="2.2"
+                                    marker-end="url(#arr1)" />
+
+                                <!-- normalized -->
+                                <line x1="0" y1="0" x2="106" y2="-56" stroke="#b6863b" stroke-width="2.4"
+                                    marker-end="url(#arr2)" />
+                                <line x1="0" y1="0" x2="-100" y2="-66" stroke="#b6863b" stroke-width="2.4"
+                                    marker-end="url(#arr2)" />
+                                <line x1="0" y1="0" x2="-88" y2="81" stroke="#b6863b" stroke-width="2.4"
+                                    marker-end="url(#arr2)" />
+                                <line x1="0" y1="0" x2="69" y2="98" stroke="#b6863b" stroke-width="2.4"
+                                    marker-end="url(#arr2)" />
+
+                                <text x="180" y="-100" font-family="Cormorant Garamond" font-style="italic"
+                                    font-size="14" fill="#2453a6">
+                                    raw x
+                                </text>
+                                <text x="115" y="-58" font-family="Cormorant Garamond" font-style="italic"
+                                    font-size="14" fill="#b6863b">
+                                    x̂ = x / ‖x‖
+                                </text>
+                            </g>
+                            <text x="36" y="395" font-family="Inter" font-size="11" fill="#6b7390">
+                                All directions preserved · all magnitudes equal to 1
+                            </text>
+                        </svg>
                     </div>
-
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <!-- Custom SVG: vectors projected to unit circle -->
-                            <svg
-                                class="draw"
-                                viewBox="0 0 600 420"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <defs>
-                                    <marker
-                                        id="arr1"
-                                        viewBox="0 0 10 10"
-                                        refX="9"
-                                        refY="5"
-                                        markerWidth="6"
-                                        markerHeight="6"
-                                        orient="auto-start-reverse"
-                                    >
-                                        <path
-                                            d="M 0 0 L 10 5 L 0 10 z"
-                                            fill="#2453a6"
-                                        />
-                                    </marker>
-                                    <marker
-                                        id="arr2"
-                                        viewBox="0 0 10 10"
-                                        refX="9"
-                                        refY="5"
-                                        markerWidth="6"
-                                        markerHeight="6"
-                                        orient="auto-start-reverse"
-                                    >
-                                        <path
-                                            d="M 0 0 L 10 5 L 0 10 z"
-                                            fill="#b6863b"
-                                        />
-                                    </marker>
-                                </defs>
-                                <rect
-                                    x="20"
-                                    y="20"
-                                    width="560"
-                                    height="380"
-                                    rx="8"
-                                    fill="none"
-                                    stroke="#d8d3c2"
-                                />
-                                <text
-                                    x="36"
-                                    y="46"
-                                    font-family="JetBrains Mono"
-                                    font-size="11"
-                                    fill="#6b7390"
-                                    letter-spacing="2"
-                                >
-                                    UNIT SPHERE PROJECTION
-                                </text>
-
-                                <g transform="translate(300,230)">
-                                    <!-- axes -->
-                                    <line
-                                        x1="-180"
-                                        y1="0"
-                                        x2="180"
-                                        y2="0"
-                                        stroke="#d8d3c2"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="-160"
-                                        x2="0"
-                                        y2="160"
-                                        stroke="#d8d3c2"
-                                    />
-                                    <!-- unit circle -->
-                                    <circle
-                                        cx="0"
-                                        cy="0"
-                                        r="120"
-                                        fill="none"
-                                        stroke="#b6863b"
-                                        stroke-opacity=".7"
-                                        stroke-dasharray="5 4"
-                                    />
-
-                                    <!-- raw vectors -->
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="170"
-                                        y2="-90"
-                                        stroke="#2453a6"
-                                        stroke-width="2.2"
-                                        marker-end="url(#arr1)"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="-160"
-                                        y2="-110"
-                                        stroke="#2453a6"
-                                        stroke-width="2.2"
-                                        marker-end="url(#arr1)"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="-130"
-                                        y2="120"
-                                        stroke="#2453a6"
-                                        stroke-width="2.2"
-                                        marker-end="url(#arr1)"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="100"
-                                        y2="140"
-                                        stroke="#2453a6"
-                                        stroke-width="2.2"
-                                        marker-end="url(#arr1)"
-                                    />
-
-                                    <!-- normalized -->
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="106"
-                                        y2="-56"
-                                        stroke="#b6863b"
-                                        stroke-width="2.4"
-                                        marker-end="url(#arr2)"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="-100"
-                                        y2="-66"
-                                        stroke="#b6863b"
-                                        stroke-width="2.4"
-                                        marker-end="url(#arr2)"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="-88"
-                                        y2="81"
-                                        stroke="#b6863b"
-                                        stroke-width="2.4"
-                                        marker-end="url(#arr2)"
-                                    />
-                                    <line
-                                        x1="0"
-                                        y1="0"
-                                        x2="69"
-                                        y2="98"
-                                        stroke="#b6863b"
-                                        stroke-width="2.4"
-                                        marker-end="url(#arr2)"
-                                    />
-
-                                    <text
-                                        x="180"
-                                        y="-100"
-                                        font-family="Cormorant Garamond"
-                                        font-style="italic"
-                                        font-size="14"
-                                        fill="#2453a6"
-                                    >
-                                        raw x
-                                    </text>
-                                    <text
-                                        x="115"
-                                        y="-58"
-                                        font-family="Cormorant Garamond"
-                                        font-style="italic"
-                                        font-size="14"
-                                        fill="#b6863b"
-                                    >
-                                        x̂ = x / ‖x‖
-                                    </text>
-                                </g>
-                                <text
-                                    x="36"
-                                    y="395"
-                                    font-family="Inter"
-                                    font-size="11"
-                                    fill="#6b7390"
-                                >
-                                    All directions preserved · all magnitudes
-                                    equal to 1
-                                </text>
-                            </svg>
-                        </div>
-                        <div class="caption">
-                            Normalization keeps semantics (direction) and
-                            discards loudness (magnitude).
-                        </div>
+                    <div class="caption">
+                        Normalization keeps semantics (direction) and discards loudness
+                        (magnitude).
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 13 — CONCLUSION (Section 12)
 ========================================================= -->
-            <section class="slide" data-slide>
-                <div class="topbar">
-                    <div class="lhs">
-                        <span class="seal"></span
-                        ><span>Mathematics in AI · The Geometric Core</span>
-                    </div>
-                    <div class="rhs">§ 12 · Conclusion</div>
+        <section class="slide" data-slide>
+            <div class="topbar">
+                <div class="lhs">
+                    <span class="seal"></span><span>Mathematics in AI · The Geometric Core</span>
                 </div>
-                <div class="body two">
-                    <div class="col">
-                        <div class="eyebrow reveal">
-                            The future of neural geometry
-                        </div>
-                        <h2 class="title reveal">
-                            Toward a <em>master vector space</em>.
-                        </h2>
-                        <p class="lead reveal" style="margin-top: 18px">
-                            The vector is the silent engine of the AI revolution
-                            — the bridge between silicon and the analogue mess
-                            of human experience.
+                <div class="rhs">§ 12 · Conclusion</div>
+            </div>
+            <div class="body two">
+                <div class="col">
+                    <div class="eyebrow reveal">The future of neural geometry</div>
+                    <h2 class="title reveal">Toward a <em>master vector space</em>.</h2>
+                    <p class="lead reveal" style="margin-top: 18px">
+                        The vector is the silent engine of the AI revolution — the bridge
+                        between silicon and the analogue mess of human experience.
+                    </p>
+                    <p class="reveal" style="margin-top: 14px">
+                        We are entering an era of
+                        <strong>multimodal spaces</strong>, where the vector for a picture
+                        of a dog and the vector for the word "dog" sit at almost the same
+                        point in a single shared space.
+                    </p>
+                    <div class="callout reveal">
+                        <p>
+                            “The quest for general AI is, in many ways, the quest for a
+                            master vector space — one geometry for every concept a human can
+                            hold.”
                         </p>
-                        <p class="reveal" style="margin-top: 14px">
-                            We are entering an era of
-                            <strong>multimodal spaces</strong>, where the vector
-                            for a picture of a dog and the vector for the word
-                            "dog" sit at almost the same point in a single
-                            shared space.
-                        </p>
-                        <div class="callout reveal">
-                            <p>
-                                “The quest for general AI is, in many ways, the
-                                quest for a master vector space — one geometry
-                                for every concept a human can hold.”
-                            </p>
-                        </div>
-                        <div class="pillrow reveal" style="margin-top: 18px">
-                            <span class="pill">text</span
-                            ><span class="pill">vision</span
-                            ><span class="pill">audio</span>
-                            <span class="pill">code</span
-                            ><span class="pill accent">→ shared latent</span>
-                        </div>
                     </div>
+                    <div class="pillrow reveal" style="margin-top: 18px">
+                        <span class="pill">text</span><span class="pill">vision</span><span class="pill">audio</span>
+                        <span class="pill">code</span><span class="pill accent">→ shared latent</span>
+                    </div>
+                </div>
 
-                    <div class="col figure reveal">
-                        <div class="frame">
-                            <!-- Custom SVG: multimodal convergence -->
-                            <svg
-                                class="draw"
-                                viewBox="0 0 600 420"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <rect
-                                    x="20"
-                                    y="20"
-                                    width="560"
-                                    height="380"
-                                    rx="8"
-                                    fill="none"
-                                    stroke="#d8d3c2"
-                                />
-                                <text
-                                    x="36"
-                                    y="46"
-                                    font-family="JetBrains Mono"
-                                    font-size="11"
-                                    fill="#6b7390"
-                                    letter-spacing="2"
-                                >
-                                    SHARED LATENT SPACE
+                <div class="col figure reveal">
+                    <div class="frame">
+                        <!-- Custom SVG: multimodal convergence -->
+                        <svg class="draw" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="20" width="560" height="380" rx="8" fill="none" stroke="#d8d3c2" />
+                            <text x="36" y="46" font-family="JetBrains Mono" font-size="11" fill="#6b7390"
+                                letter-spacing="2">
+                                SHARED LATENT SPACE
+                            </text>
+
+                            <!-- shared center -->
+                            <g transform="translate(300,230)">
+                                <circle cx="0" cy="0" r="110" fill="#fdf6e6" stroke="#b6863b" stroke-opacity=".7"
+                                    stroke-dasharray="4 3" />
+                                <text x="0" y="-120" text-anchor="middle" font-family="Cormorant Garamond"
+                                    font-style="italic" font-size="14" fill="#6e4f1f">
+                                    universal embedding
                                 </text>
 
-                                <!-- shared center -->
-                                <g transform="translate(300,230)">
-                                    <circle
-                                        cx="0"
-                                        cy="0"
-                                        r="110"
-                                        fill="#fdf6e6"
-                                        stroke="#b6863b"
-                                        stroke-opacity=".7"
-                                        stroke-dasharray="4 3"
-                                    />
-                                    <text
-                                        x="0"
-                                        y="-120"
-                                        text-anchor="middle"
-                                        font-family="Cormorant Garamond"
-                                        font-style="italic"
-                                        font-size="14"
-                                        fill="#6e4f1f"
-                                    >
-                                        universal embedding
-                                    </text>
-
-                                    <!-- modality nodes around -->
-                                    <g
-                                        font-family="Inter"
-                                        font-size="13"
-                                        fill="#0e1a35"
-                                    >
-                                        <g transform="translate(-220,-110)">
-                                            <rect
-                                                x="-50"
-                                                y="-22"
-                                                width="100"
-                                                height="44"
-                                                rx="6"
-                                                fill="#fff"
-                                                stroke="#d8d3c2"
-                                            />
-                                            <text
-                                                x="0"
-                                                y="5"
-                                                text-anchor="middle"
-                                            >
-                                                text
-                                            </text>
-                                        </g>
-                                        <g transform="translate(220,-110)">
-                                            <rect
-                                                x="-50"
-                                                y="-22"
-                                                width="100"
-                                                height="44"
-                                                rx="6"
-                                                fill="#fff"
-                                                stroke="#d8d3c2"
-                                            />
-                                            <text
-                                                x="0"
-                                                y="5"
-                                                text-anchor="middle"
-                                            >
-                                                vision
-                                            </text>
-                                        </g>
-                                        <g transform="translate(-220,110)">
-                                            <rect
-                                                x="-50"
-                                                y="-22"
-                                                width="100"
-                                                height="44"
-                                                rx="6"
-                                                fill="#fff"
-                                                stroke="#d8d3c2"
-                                            />
-                                            <text
-                                                x="0"
-                                                y="5"
-                                                text-anchor="middle"
-                                            >
-                                                audio
-                                            </text>
-                                        </g>
-                                        <g transform="translate(220,110)">
-                                            <rect
-                                                x="-50"
-                                                y="-22"
-                                                width="100"
-                                                height="44"
-                                                rx="6"
-                                                fill="#fff"
-                                                stroke="#d8d3c2"
-                                            />
-                                            <text
-                                                x="0"
-                                                y="5"
-                                                text-anchor="middle"
-                                            >
-                                                code
-                                            </text>
-                                        </g>
+                                <!-- modality nodes around -->
+                                <g font-family="Inter" font-size="13" fill="#0e1a35">
+                                    <g transform="translate(-220,-110)">
+                                        <rect x="-50" y="-22" width="100" height="44" rx="6" fill="#fff"
+                                            stroke="#d8d3c2" />
+                                        <text x="0" y="5" text-anchor="middle">text</text>
                                     </g>
-
-                                    <!-- arrows into the center -->
-                                    <g
-                                        stroke="#2453a6"
-                                        stroke-width="1.8"
-                                        fill="none"
-                                    >
-                                        <line
-                                            x1="-170"
-                                            y1="-100"
-                                            x2="-90"
-                                            y2="-50"
-                                        />
-                                        <line
-                                            x1="170"
-                                            y1="-100"
-                                            x2="90"
-                                            y2="-50"
-                                        />
-                                        <line
-                                            x1="-170"
-                                            y1="100"
-                                            x2="-90"
-                                            y2="50"
-                                        />
-                                        <line
-                                            x1="170"
-                                            y1="100"
-                                            x2="90"
-                                            y2="50"
-                                        />
+                                    <g transform="translate(220,-110)">
+                                        <rect x="-50" y="-22" width="100" height="44" rx="6" fill="#fff"
+                                            stroke="#d8d3c2" />
+                                        <text x="0" y="5" text-anchor="middle">vision</text>
                                     </g>
-
-                                    <!-- center seal -->
-                                    <circle
-                                        cx="0"
-                                        cy="0"
-                                        r="8"
-                                        fill="#b6863b"
-                                    />
+                                    <g transform="translate(-220,110)">
+                                        <rect x="-50" y="-22" width="100" height="44" rx="6" fill="#fff"
+                                            stroke="#d8d3c2" />
+                                        <text x="0" y="5" text-anchor="middle">audio</text>
+                                    </g>
+                                    <g transform="translate(220,110)">
+                                        <rect x="-50" y="-22" width="100" height="44" rx="6" fill="#fff"
+                                            stroke="#d8d3c2" />
+                                        <text x="0" y="5" text-anchor="middle">code</text>
+                                    </g>
                                 </g>
-                            </svg>
-                        </div>
-                        <div class="caption">
-                            Modalities converge — text, vision, audio, code map
-                            into one shared latent.
-                        </div>
+
+                                <!-- arrows into the center -->
+                                <g stroke="#2453a6" stroke-width="1.8" fill="none">
+                                    <line x1="-170" y1="-100" x2="-90" y2="-50" />
+                                    <line x1="170" y1="-100" x2="90" y2="-50" />
+                                    <line x1="-170" y1="100" x2="-90" y2="50" />
+                                    <line x1="170" y1="100" x2="90" y2="50" />
+                                </g>
+
+                                <!-- center seal -->
+                                <circle cx="0" cy="0" r="8" fill="#b6863b" />
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="caption">
+                        Modalities converge — text, vision, audio, code map into one
+                        shared latent.
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- =========================================================
+        <!-- =========================================================
      SLIDE 14 — THANK YOU
 ========================================================= -->
-            <section class="slide closing" data-slide>
-                <div class="reveal eyebrow">— Thank You —</div>
-                <h1 class="display reveal" style="margin-top: 14px">
-                    Questions are <em>welcome</em>.
-                </h1>
-                <div class="ornament reveal"></div>
-                <p class="lead reveal" style="max-width: 62ch">
-                    Mathematics in Artificial Intelligence — The Geometric Core.
-                    Vectors as the fundamental language of artificial neural
-                    networks.
-                </p>
+        <section class="slide closing" data-slide>
+            <div class="reveal eyebrow">— Thank You —</div>
+            <h1 class="display reveal" style="margin-top: 14px">
+                Questions are <em>welcome</em>.
+            </h1>
+            <div class="ornament reveal"></div>
+            <p class="lead reveal" style="max-width: 62ch">
+                Mathematics in Artificial Intelligence — The Geometric Core. Vectors
+                as the fundamental language of artificial neural networks.
+            </p>
 
-                <div class="authors reveal">
-                    <div>Ahmed Ali Hameed</div>
-                    <div>Ahmed Hisham Abdulhadi</div>
-                    <div>Ahmed Khaled Qassim</div>
-                    <div>Ameer Mushtaq Amori</div>
-                    <div>Rand Rafea</div>
-                    <div>Bashar Fadhil</div>
-                </div>
-                <p
-                    class="small reveal"
-                    style="
-                        margin-top: 30px;
-                        letter-spacing: 0.18em;
-                        text-transform: uppercase;
-                    "
-                >
-                    Supervised by Prof. Azhar Malik · Academic Year 2025–2026
-                </p>
-            </section>
-        </div>
-        <!-- /stage -->
+            <div class="authors reveal">
+                <div>Ahmed Ali Hameed</div>
+                <div>Ahmed Hisham Abdulhadi</div>
+                <div>Ahmed Khaled Qassim</div>
+                <div>Ameer Mushtaq Amori</div>
+                <div>Rand Rafea Mowafaq</div>
+                <div>Bashar Fadhil Azhar</div>
+            </div>
+            <p class="small reveal" style="
+            margin-top: 30px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+          ">
+                Supervised by Prof. Azhar Malik · Academic Year 2025–2026
+            </p>
+        </section>
+    </div>
+    <!-- /stage -->
 
-        <div class="controls">
-            <button id="prev" aria-label="Previous slide">‹</button>
-            <span id="counter">1 / 14</span>
-            <button id="next" aria-label="Next slide">›</button>
-            <span style="opacity: 0.55; margin-left: 6px"
-                >← → · Space · F = fullscreen</span
-            >
-        </div>
+    <div class="controls">
+        <button id="prev" aria-label="Previous slide">‹</button>
+        <span id="counter">1 / 14</span>
+        <button id="next" aria-label="Next slide">›</button>
+        <span style="opacity: 0.55; margin-left: 6px">← → · Space · F = fullscreen</span>
+    </div>
 
-        <script>
-            const slides = Array.from(
-                document.querySelectorAll("[data-slide]"),
-            );
-            const counter = document.getElementById("counter");
-            const progress = document.getElementById("progress");
-            let i = 0;
+    <script>
+        const slides = Array.from(document.querySelectorAll("[data-slide]"));
+        const counter = document.getElementById("counter");
+        const progress = document.getElementById("progress");
+        let i = 0;
 
-            function show(n) {
-                n = Math.max(0, Math.min(slides.length - 1, n));
-                slides.forEach((s, k) => {
-                    s.classList.toggle("active", k === n);
-                    s.classList.toggle("prev", k < n);
-                });
-                counter.textContent = `${n + 1} / ${slides.length}`;
-                progress.style.width = `${((n + 1) / slides.length) * 100}%`;
-                i = n;
-                // re-render math for the active slide so KaTeX picks up newly-visible content
-                if (window.renderMathInElement) {
-                    try {
-                        window.renderMathInElement(slides[n], {
-                            delimiters: [
-                                { left: "$$", right: "$$", display: true },
-                                { left: "$", right: "$", display: false },
-                            ],
-                        });
-                    } catch (e) {}
+        function show(n) {
+            n = Math.max(0, Math.min(slides.length - 1, n));
+            slides.forEach((s, k) => {
+                s.classList.toggle("active", k === n);
+                s.classList.toggle("prev", k < n);
+            });
+            counter.textContent = `${n + 1} / ${slides.length}`;
+            progress.style.width = `${((n + 1) / slides.length) * 100}%`;
+            i = n;
+            // re-render math for the active slide so KaTeX picks up newly-visible content
+            if (window.renderMathInElement) {
+                try {
+                    window.renderMathInElement(slides[n], {
+                        delimiters: [
+                            {left: "$$", right: "$$", display: true},
+                            {left: "$", right: "$", display: false},
+                        ],
+                    });
+                } catch (e) { }
+            }
+        }
+
+        document.getElementById("prev").onclick = () => show(i - 1);
+        document.getElementById("next").onclick = () => show(i + 1);
+
+        document.addEventListener("keydown", (e) => {
+            if (["ArrowRight", "PageDown", " "].includes(e.key)) {
+                e.preventDefault();
+                show(i + 1);
+            } else if (["ArrowLeft", "PageUp"].includes(e.key)) {
+                e.preventDefault();
+                show(i - 1);
+            } else if (e.key === "Home") show(0);
+            else if (e.key === "End") show(slides.length - 1);
+            else if (e.key.toLowerCase() === "f") {
+                if (!document.fullscreenElement) {
+                    document.querySelectorAll(".controls")[0].style.display = "none";
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+
+                    document.querySelectorAll(".controls")[0].style.display = "";
                 }
             }
+        });
 
-            document.getElementById("prev").onclick = () => show(i - 1);
-            document.getElementById("next").onclick = () => show(i + 1);
+        // touch swipe
+        let tx = 0;
+        document.addEventListener(
+            "touchstart",
+            (e) => (tx = e.touches[0].clientX),
+        );
+        document.addEventListener("touchend", (e) => {
+            const dx = e.changedTouches[0].clientX - tx;
+            if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1));
+        });
 
-            document.addEventListener("keydown", (e) => {
-                if (["ArrowRight", "PageDown", " "].includes(e.key)) {
-                    e.preventDefault();
-                    show(i + 1);
-                } else if (["ArrowLeft", "PageUp"].includes(e.key)) {
-                    e.preventDefault();
-                    show(i - 1);
-                } else if (e.key === "Home") show(0);
-                else if (e.key === "End") show(slides.length - 1);
-                else if (e.key.toLowerCase() === "f") {
-                    if (!document.fullscreenElement) {
-                        document.querySelectorAll(
-                            ".controls",
-                        )[0].style.display = "none";
-                        document.documentElement.requestFullscreen();
-                    } else {
-                        document.exitFullscreen();
+        show(0);
+    </script>
+</body>
 
-                        document.querySelectorAll(
-                            ".controls",
-                        )[0].style.display = "";
-                    }
-                }
-            });
-
-            // touch swipe
-            let tx = 0;
-            document.addEventListener(
-                "touchstart",
-                (e) => (tx = e.touches[0].clientX),
-            );
-            document.addEventListener("touchend", (e) => {
-                const dx = e.changedTouches[0].clientX - tx;
-                if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1));
-            });
-
-            show(0);
-        </script>
-    </body>
 </html>
